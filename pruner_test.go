@@ -1,18 +1,20 @@
 package pruner
+
 import "testing"
+
 func TestPruner(t *testing.T) {
-	txt,err := fileGetContents("./test_data/input.json");
+	txt, err := fileGetContents("./test_data/input.json")
 	if err != nil {
-		t.Errorf("failed to load input %v",err)
+		t.Errorf("failed to load input %v", err)
 		return
 	}
-	root,err := ParseTree(txt);
+	root, err := ParseTree(txt)
 	if err != nil {
-		t.Errorf("failed to parse json %v",err)
+		t.Errorf("failed to parse json %v", err)
 		return
 	}
 	cat := root.Themes[0].SubThemes[0].Categories[0]
-	ind_filter := func (ind Indicator) bool {
+	ind_filter := func(ind Indicator) bool {
 		if ind.Id == 299 {
 			return true
 		}
@@ -23,7 +25,7 @@ func TestPruner(t *testing.T) {
 		t.Errorf("expected only one indicator")
 	}
 	sub_theme := root.Themes[0].SubThemes[0]
-	sub_filter := func (cat Category) bool {
+	sub_filter := func(cat Category) bool {
 		ninds := cat.FilterIndicators(ind_filter)
 		if len(ninds) > 0 {
 			return true
@@ -35,7 +37,7 @@ func TestPruner(t *testing.T) {
 		t.Errorf("expected 1 category")
 	}
 	theme := root.Themes[0]
-	t_filter := func (st SubTheme)bool {
+	t_filter := func(st SubTheme) bool {
 		new_cats := st.FilterCategories(sub_filter)
 		if len(new_cats) > 0 {
 			return true
@@ -46,7 +48,7 @@ func TestPruner(t *testing.T) {
 	if len(new_subs) != 1 {
 		t.Errorf("expected 1 subtheme")
 	}
-	new_root := root.Filter(func (th Theme)bool {
+	new_root := root.Filter(func(th Theme) bool {
 		new_subs := th.FilterSubThemes(t_filter)
 		if len(new_subs) > 0 {
 			return true

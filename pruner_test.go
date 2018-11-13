@@ -1,4 +1,4 @@
-package pruner
+package main
 
 import "testing"
 
@@ -57,5 +57,30 @@ func TestPruner(t *testing.T) {
 	})
 	if len(new_root.Themes) != 1 {
 		t.Errorf("expected filtering collection would return 1 theme")
+	}
+}
+// Okay, we want to see what it will feel like to 
+// use the pruner in some code, is it easy to use?
+// Is is comprehensible and coherent?
+func TestUserInterface(t *testing.T) {
+	txt, err := fileGetContents("./test_data/input.json")
+	if err != nil {
+		t.Errorf("failed to load input %v", err)
+		return
+	}
+	collection, err := ParseTree(txt)
+	indicator_ids := []int{299,300}
+	filter := func (ind Indicator)bool {
+		for i := range indicator_ids {
+			if indicator_ids[i] == ind.Id {
+				return true
+			}
+		}
+		return false;
+	}
+	new_collection := collection.FilterByIndicators(filter)
+	new_themes := new_collection.Themes
+	if ! (len(new_themes) == 1 && len(new_themes) < len(collection.Themes)) {
+		t.Errorf("expected new themes to be len 1");
 	}
 }

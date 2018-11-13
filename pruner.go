@@ -1,9 +1,6 @@
 package main
-
 import (
 	"encoding/json"
-	"io/ioutil"
-	//"fmt"
 )
 
 type Indicator struct {
@@ -121,9 +118,7 @@ func (tc ThemeCollection) FilterByIndicators(cb func(ind Indicator)bool) ThemeCo
 	}
 	return tc.Filter(theme_filter)
 }
-func fileGetContents(p string) ([]byte, error) {
-	return ioutil.ReadFile(p)
-}
+
 func ParseTree(json_string []byte) (ThemeCollection, error) {
 	var root []Theme
 	var nodes ThemeCollection

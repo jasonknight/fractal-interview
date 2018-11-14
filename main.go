@@ -3,7 +3,6 @@ package main
 import "github.com/gin-gonic/gin"
 import "net/http"
 import "io/ioutil"
-import "fmt"
 import "strconv"
 
 func fetch(conf Configuration, name string) ([]byte, int, error) {
@@ -49,7 +48,6 @@ func treeHandler(conf Configuration, c *gin.Context) {
 			}
 			new_collection := collection.FilterByIndicators(filter)
 			new_themes := new_collection.Themes
-			fmt.Printf("new_themes: %v", new_themes)
 			c.IndentedJSON(200, new_themes)
 			return
 		}

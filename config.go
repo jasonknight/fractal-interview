@@ -1,19 +1,22 @@
 package main
+
 import (
 	"encoding/json"
 )
+
 type Configuration struct {
-	Listen string `json:"listen"`
-	RemoteUrl string `json:"remote_url"`
-	RemotePort int `json:"remote_port"`
-	Retries int `json:"retries"`
+	Listen     string `json:"listen"`
+	RemoteUrl  string `json:"remote_url"`
+	RemotePort int    `json:"remote_port"`
+	Retries    int    `json:"retries"`
 }
-func LoadConfig() (Configuration,error) {
+
+func LoadConfig() (Configuration, error) {
 	var conf Configuration
-	json_string,err := fileGetContents("./env.json")
+	json_string, err := fileGetContents("./env.json")
 	if err != nil {
-		return conf,err
+		return conf, err
 	}
 	err = json.Unmarshal(json_string, &conf)
-	return conf,err
+	return conf, err
 }

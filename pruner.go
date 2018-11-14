@@ -1,4 +1,5 @@
 package main
+
 import (
 	"encoding/json"
 )
@@ -13,14 +14,15 @@ type Category struct {
 	Unit       string      `json:"unit"`
 	Indicators []Indicator `json:"indicators"`
 }
+
 // So, the main idea is that we will 'filter' the tree from
 // the bottom (or leaf) up. So each node will have a filter
 // function, and we can pass any arbitrary filter, and it
 // will return it's children filtered.
-// 
+//
 // Ideally this could be generic, but that would take more
 // time than I'm willing to invest for the moment.
-// 
+//
 // Also, I will put the functions directly after the struct
 // that they are defined for... it's an arbitrary organization
 // but for such a small lib, it makes more sense this way.
@@ -44,8 +46,8 @@ type SubTheme struct {
 func (s *SubTheme) FilterCategories(cb func(cat *Category) bool) []Category {
 	// What, again? Actually yes, in this sense, over
 	// generalizing can lead to "one function to rule them all"
-	// which has drawbacks. 
-	// 
+	// which has drawbacks.
+	//
 	// Over time, these functions are going to get crudded
 	// up with hotfixes and hacks due to the
 	// unforeseen.
@@ -77,6 +79,7 @@ func (t *Theme) FilterSubThemes(cb func(st *SubTheme) bool) []SubTheme {
 type ThemeCollection struct {
 	Themes []Theme
 }
+
 // So what to name this guy? Eh, we'll call him a ThemeCollection,
 // but this is mainly there to encapsulate the naughty bits
 // of iterating over the collection returned by the server.
@@ -95,7 +98,7 @@ func (tc *ThemeCollection) Filter(cb func(th *Theme) bool) *ThemeCollection {
 	tc.Themes = new_themes
 	return tc
 }
-func (tc ThemeCollection) FilterByIndicators(cb func(ind Indicator)bool) ThemeCollection {
+func (tc ThemeCollection) FilterByIndicators(cb func(ind Indicator) bool) ThemeCollection {
 	cat_filter := func(cat *Category) bool {
 		ninds := cat.FilterIndicators(cb)
 		cat.Indicators = ninds

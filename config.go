@@ -6,6 +6,7 @@ type Configuration struct {
 	Listen string `json:"listen"`
 	RemoteUrl string `json:"remote_url"`
 	RemotePort int `json:"remote_port"`
+	Retries int `json:"retries"`
 }
 func LoadConfig() (Configuration,error) {
 	var conf Configuration

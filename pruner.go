@@ -24,13 +24,14 @@ type Category struct {
 // Also, I will put the functions directly after the struct
 // that they are defined for... it's an arbitrary organization
 // but for such a small lib, it makes more sense this way.
-func (c Category) FilterIndicators(cb func(ind Indicator) bool) []Indicator {
+func (c *Category) FilterIndicators(cb func(ind Indicator) bool) []Indicator {
 	var new_indicators []Indicator
 	for _, ind := range c.Indicators {
 		if cb(ind) {
 			new_indicators = append(new_indicators, ind)
 		}
 	}
+	c.Indicators = new_indicators
 	return new_indicators
 }
 
@@ -40,7 +41,7 @@ type SubTheme struct {
 	Categories []Category `json:"categories"`
 }
 
-func (s SubTheme) FilterCategories(cb func(cat Category) bool) []Category {
+func (s *SubTheme) FilterCategories(cb func(cat *Category) bool) []Category {
 	// What, again? Actually yes, in this sense, over
 	// generalizing can lead to "one function to rule them all"
 	// which has drawbacks. 
@@ -50,7 +51,7 @@ func (s SubTheme) FilterCategories(cb func(cat Category) bool) []Category {
 	// unforeseen.
 	var new_categories []Category
 	for _, cat := range s.Categories {
-		if cb(cat) {
+		if cb(&cat) {
 			new_categories = append(new_categories, cat)
 		}
 	}
@@ -63,10 +64,10 @@ type Theme struct {
 	SubThemes []SubTheme `json:"sub_themes"`
 }
 
-func (t Theme) FilterSubThemes(cb func(st SubTheme) bool) []SubTheme {
+func (t *Theme) FilterSubThemes(cb func(st *SubTheme) bool) []SubTheme {
 	var new_subthemes []SubTheme
 	for _, st := range t.SubThemes {
-		if cb(st) {
+		if cb(&st) {
 			new_subthemes = append(new_subthemes, st)
 		}
 	}
@@ -84,10 +85,10 @@ type ThemeCollection struct {
 // to do is pass in a callback to do the filtering
 // We can also add onto the ThemeCollection some utility
 // functions to further conceal the internals
-func (tc ThemeCollection) Filter(cb func(th Theme) bool) ThemeCollection {
+func (tc *ThemeCollection) Filter(cb func(th *Theme) bool) *ThemeCollection {
 	var new_themes []Theme
 	for _, th := range tc.Themes {
-		if cb(th) {
+		if cb(&th) {
 			new_themes = append(new_themes, th)
 		}
 	}
@@ -95,28 +96,31 @@ func (tc ThemeCollection) Filter(cb func(th Theme) bool) ThemeCollection {
 	return tc
 }
 func (tc ThemeCollection) FilterByIndicators(cb func(ind Indicator)bool) ThemeCollection {
-	cat_filter := func(cat Category) bool {
+	cat_filter := func(cat *Category) bool {
 		ninds := cat.FilterIndicators(cb)
+		cat.Indicators = ninds
 		if len(ninds) > 0 {
 			return true
 		}
 		return false
 	}
-	subtheme_filter := func(st SubTheme) bool {
+	subtheme_filter := func(st *SubTheme) bool {
 		new_cats := st.FilterCategories(cat_filter)
+		st.Categories = new_cats
 		if len(new_cats) > 0 {
 			return true
 		}
 		return false
 	}
-	theme_filter := func(th Theme) bool {
+	theme_filter := func(th *Theme) bool {
 		new_subs := th.FilterSubThemes(subtheme_filter)
+		th.SubThemes = new_subs
 		if len(new_subs) > 0 {
 			return true
 		}
 		return false
 	}
-	return tc.Filter(theme_filter)
+	return *tc.Filter(theme_filter)
 }
 
 func ParseTree(json_string []byte) (ThemeCollection, error) {
